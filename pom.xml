@@ -167,4 +167,13 @@
 			</properties>
 		</profile>
 	</profiles>
+	<scm>
+		<url>https://github.com/agrsachin81/MoneyTransferService</url>
+		<connection>scm:git:git//github.com/agrsachin81/MoneyTransferService.git</connection>
+		<developerConnection>scm:git:git//github.com/agrsachin81/MoneyTransferService.git</developerConnection>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/agrsachin81/MoneyTransferService/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
 </project>
