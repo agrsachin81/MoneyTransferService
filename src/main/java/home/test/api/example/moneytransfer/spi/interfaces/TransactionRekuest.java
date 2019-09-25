@@ -29,4 +29,6 @@ public interface TransactionRekuest {
 	Optional<String> getCashReferenceId();
 	
 	Optional<String> getCashLocation();
+	
+	TransactionType DEFAULT_TRANSACTION_TYPE = TransactionType.DEBIT_ACCOUNT;
 }

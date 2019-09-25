@@ -12,6 +12,7 @@ import home.test.api.example.moneytransfer.service.internal.AccountServiceIntern
 import home.test.api.example.moneytransfer.spi.TransactionService;
 import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
 import home.test.api.example.moneytransfer.spi.enums.TransactionStatus;
+import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
@@ -35,8 +36,8 @@ public class InMemoryTransactionService implements TransactionService {
 		TransactionBuilder builder = TransactionBuilder.createBuilder(transaction);
 
 		//TODO: add logging
-		//System.out.println("Originating Accnt "+originatingAccntId +" type " + transaction.getTransactionType());
-		
+		TransactionType transactionType = transaction.getTransactionType();
+				
 		if(originatingAccntId==null) {
 			return builder.createTransactionResult(StatusResponse.ERROR, TransactionStatus.INVALID_INPUT,
 					"Accountid must have a valid value", originatingAccntId, true, false);
@@ -52,7 +53,7 @@ public class InMemoryTransactionService implements TransactionService {
 		String creditedAccountId = null;
 		boolean isDebit = false;
 		boolean isCash = false;
-		switch (transaction.getTransactionType()) {
+		switch (transactionType) {
 		case DEBIT_ACCOUNT:
 			debitedAccountId = originatingAccntId;
 			creditedAccountId = transaction.getCpAccountId().get();

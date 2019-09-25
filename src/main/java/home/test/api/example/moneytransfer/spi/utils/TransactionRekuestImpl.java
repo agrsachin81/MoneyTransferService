@@ -20,8 +20,9 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId) {
 		this(cpAccountId, amount, transactionRekuestId, TransactionType.DEBIT_ACCOUNT, null, null);
 	}
-	
-	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId, TransactionType transactionType) {
+
+	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId,
+			TransactionType transactionType) {
 		this(cpAccountId, amount, transactionRekuestId, transactionType, null, null);
 	}
 
@@ -32,13 +33,10 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 		this.amount = amount;
 		this.transactionRekuestId = transactionRekuestId;
 
-		if (transactionType != null)
-			this.transactionType = transactionType;
-		else
-			this.transactionType = TransactionType.DEBIT_ACCOUNT;
-		
-		this.cashReferenceId = Optional.ofNullable(cashLocationId);
-		this.cashLocation = Optional.ofNullable(cashLocationId);
+		this.transactionType = transactionType;
+
+		this.cashReferenceId = cashReferenceId;
+		this.cashLocation = cashLocationId;
 	}
 
 	private final double amount;
@@ -62,25 +60,28 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 
 	@Override
 	public TransactionType getTransactionType() {
-		return transactionType;
+		if (transactionType != null)
+			return transactionType;
+		else
+			return DEFAULT_TRANSACTION_TYPE;
 	}
 
 	@Override
 	public Optional<String> getCashReferenceId() {
-		return cashReferenceId;
+		return Optional.ofNullable(cashReferenceId);
 	}
 
 	@Override
 	public Optional<String> getCashLocation() {
-		return cashLocation;
+		return Optional.ofNullable(cashLocation);
 	}
 
-	private final Optional<String> cashReferenceId;
-	private final Optional<String> cashLocation;
+	private final String cashReferenceId;
+	private final String cashLocation;
 
 	@Override
 	public boolean isCash() {
-		return TransactionType.cashTransactions.contains(transactionType);
+		return TransactionType.CASH_TRANSACTIONS.contains(transactionType);
 	}
-	
+
 }

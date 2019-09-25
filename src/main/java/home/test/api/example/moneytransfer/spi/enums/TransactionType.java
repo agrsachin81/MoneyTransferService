@@ -26,7 +26,7 @@ public enum TransactionType implements ValuedEnum<TransactionType> {
 	}
 	
 	
-	public static final EnumSet<TransactionType> cashTransactions = EnumSet.of(DEBIT_CASH, CREDIT_CASH);
+	public static final EnumSet<TransactionType> CASH_TRANSACTIONS = EnumSet.of(DEBIT_CASH, CREDIT_CASH);
 	@Override
 	public String getStringValue() {
 		return stringPresentation;
