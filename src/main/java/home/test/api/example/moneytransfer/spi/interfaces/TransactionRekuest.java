@@ -8,6 +8,11 @@ public interface TransactionRekuest {
 
 	public Optional<String> getCpAccountId();	
 	public double getAmount();	
+	
+	/**
+	 * Must be non null
+	 * @return
+	 */
 	public String getTransactionRekuestId();
 	
 	/**
