@@ -1,5 +1,5 @@
 # MoneyTransferService
-This is the rekuired dependency for MoneyTransferSpark project which is going to be pushed separately.
+This is the rekuired dependency for MoneyTransferSpark project which is pushed separately.
 https://github.com/agrsachin81/MoneyTransferSpark
 
 
