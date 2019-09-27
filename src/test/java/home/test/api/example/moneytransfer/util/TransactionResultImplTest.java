@@ -47,6 +47,8 @@ public class TransactionResultImplTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+	
+	
 
 	@Test
 	public void testJsonInterface() {
@@ -57,12 +59,11 @@ public class TransactionResultImplTest {
 
 		String jsonStr = json.toJson(impl);
 
-		System.out.println("jsonified string is " + jsonStr);
 		Map<String,String> map = json.fromJson(jsonStr, HashMap.class);
 		
 		String missing = findMissingJsonProps(map, TransactionResult.class);
 
-		assertEquals("missing props are  " + missing, 0, missing.length());
+		assertEquals("Missing props are  " + missing, 0, missing.length());
 	}
 
 	public static String findMissingJsonProps(Map<String,String> map, Class<?> class1) {
@@ -88,5 +89,7 @@ public class TransactionResultImplTest {
 		}
 		return missing;
 	}
+	
+	
 
 }
