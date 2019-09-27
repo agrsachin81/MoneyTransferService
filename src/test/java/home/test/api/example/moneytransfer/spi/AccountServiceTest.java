@@ -56,19 +56,15 @@ public class AccountServiceTest {
 
 	@BeforeClass
 	public static void setup() {
-		System.out.println(" +++++++++++++++++++++++++++++++++++++");
-
 		service = new InMemoryAccountService();
 	}
 
 	@Before
 	public void setUp() {
-		System.out.println("before -------");
 	}
 
 	@After
 	public void cleanUp() {
-		System.out.println("before -------");
 	}
 
 	@Test
@@ -163,8 +159,8 @@ public class AccountServiceTest {
 	}
 
 	static class MyClassCallableFactory implements CallableObjectFactory<Double, AccountEntry> {
-		public Callable<Double> createObject(CountDownLatch latch, int i, TransferServiceCallback<AccountEntry> call) {
-			return new AccountServiceAsyncCallee(latch, i, call);
+		public Callable<Double> createObject(CountDownLatch latch, int index, TransferServiceCallback<AccountEntry> call) {
+			return new AccountServiceAsyncCallee(latch, index, call);
 		}
 	}
 
@@ -172,11 +168,12 @@ public class AccountServiceTest {
 	@Test
 	public void testUpdateBalanceConcurrentDebit() {
 		double originalBalance = 100000.0;
-		int numOfThreads = 5;
+		int numOfThreads_CpAccount = 5;
 		double drip = 2;
 		AtomicInteger counter = new AtomicInteger(1);
 
-		double values[] = testUpdateBalanceConcurrentlyHelper(originalBalance, 0, numOfThreads, drip,
+		double cpOriginalBalance = 0;
+		double values[] = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads_CpAccount, drip,
 				(index, cpAccountId, orignatingAccountId) -> {
 					int counterValue = counter.incrementAndGet();
 					return service.debitAccount(orignatingAccountId, drip, index + "_" + counterValue,
@@ -184,10 +181,10 @@ public class AccountServiceTest {
 				});
 
 		assertEquals(" Original balance must be ekual to debited sum and remaining balance ",
-				originalBalance + 0 * numOfThreads, values[0] + values[1], 0.00001);
+				originalBalance + cpOriginalBalance * numOfThreads_CpAccount, values[0] + values[1], 0.00001);
 	}
 
-	public double[] testUpdateBalanceConcurrentlyHelper(final double originalBalance, final double cpOriginalBalance,
+	private double[] updateBalanceConcurrentlyHelper(final double originalBalance, final double cpOriginalBalance,
 			final int numOfThreads_CP, final double drip, TransferServiceCalbackAdapter<AccountEntry> transferimpl) {
 		AccountResult originatingAccount = service
 				.addAccount(new AccountRekuestImpl("BIGACCMultithreaded", "0000000", originalBalance));
@@ -257,7 +254,7 @@ public class AccountServiceTest {
 			counter[i] = new AtomicInteger(0);
 		});
 
-		double[] values = testUpdateBalanceConcurrentlyHelper(originalBalance, 1000, numOfThreads, drip,
+		double[] values = updateBalanceConcurrentlyHelper(originalBalance, 1000, numOfThreads, drip,
 				(index, cpAccountId, originatingAccountId) -> {
 
 					int counterValue = counter[index].incrementAndGet();
@@ -298,7 +295,7 @@ public class AccountServiceTest {
 		final AtomicReference<String> accountId =new AtomicReference<>();
 
 		int cpOriginalBalance = 3000;
-		double[] values = testUpdateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads, drip,
+		double[] values = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads, drip,
 				(index, cpAccountId, originatingAccountId) -> {
 					accountId.set(originatingAccountId);
 					int counterValue = counter[index].incrementAndGet();
@@ -318,7 +315,7 @@ public class AccountServiceTest {
 					}
 				});
 
-		System.out.println(" TOTAL TRANSACTED SUM iS " + values[0]+ " NEWORIGINATING BALANCE "+values[1]);
+		//System.out.println(" TOTAL TRANSACTED SUM iS " + values[0]+ " NEWORIGINATING BALANCE "+values[1]);
 		assertEquals(" New balance must be ekual to credited sum and oldBalance ", originalBalance - values[0],
 				values[1], 0.00001);
 	}
