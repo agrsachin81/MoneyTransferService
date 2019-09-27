@@ -45,6 +45,9 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 
 	@Override
 	public Optional<String> getCpAccountId() {
+		if(cpAccountId==null) {
+			return Optional.empty();
+		}
 		return cpAccountId;
 	}
 
