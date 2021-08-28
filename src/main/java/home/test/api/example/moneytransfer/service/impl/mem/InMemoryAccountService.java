@@ -22,9 +22,17 @@ import home.test.api.example.moneytransfer.util.AccountBuilder;
 
 public class InMemoryAccountService implements AccountServiceInternal {
 
-	ConcurrentMap<String, Account> accounts = new ConcurrentHashMap<>();
-	ConcurrentMap<String, List<AccountEntry>> accountEntries = new ConcurrentHashMap<>();
-
+	private static final String ACCOUNT_NOT_FOUND = "Account not found ";
+	private static final String NO_ACCOUNT_FOUND = ACCOUNT_NOT_FOUND;
+	private static final String SUCCESSFUL_CREATED = " successful created ";
+	private static final String INVALID_BALANCE = "invalid balance";
+	private static final String UNKNOWN_ERROR_COULD_NOT_CREDIT_ACCOUNT = "UnknownError could not credit Account ";
+	private static final String NOT_ENOUGH_FUNDS = "Not enough funds ";
+	private static final String ACCOUNT_IS_NO_LONGER_ACTIVE = "Account is no longer active ";
+	private final ConcurrentMap<String, Account> accounts = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, List<AccountEntry>> accountEntries = new ConcurrentHashMap<>();
+	public final int numOfAttempts = 20;
+	
 	public static boolean isNegative(double d) {
 		return Double.compare(d, 0.0) < 0;
 	}
@@ -37,19 +45,20 @@ public class InMemoryAccountService implements AccountServiceInternal {
 		// in case of external service might not be present etc.
 		AccountBuilder builder = AccountBuilder.createAccountBuilder(acc);
 		if (isNegative(acc.getBalance())) {
-			return builder.createAccountResultWithRekuest(StatusResponse.ERROR, "invalid balance");
+			return builder.createAccountResultWithRekuest(StatusResponse.ERROR, INVALID_BALANCE);
 		}
 
 		String nextId = AccountIdUtils.generateNext();
 		Account accnt = builder.createNewAccount(nextId);
 
 		Account oldAccnt = accounts.putIfAbsent(nextId, accnt);
-		if (oldAccnt != null) {
-			return builder.createAccountResultWithRekuest(StatusResponse.ERROR, "Already Exists");
-		} else {
-			accountEntries.putIfAbsent(nextId, new ArrayList<AccountEntry>());
-		}
-		return builder.createAccountResult(accnt, StatusResponse.SUCCESS, " successful created ");
+		while (oldAccnt != null) {
+			nextId = AccountIdUtils.generateNext();
+			accnt = builder.createNewAccount(nextId);			
+		}  
+		
+		accountEntries.putIfAbsent(nextId, new ArrayList<AccountEntry>());		
+		return builder.createAccountResult(accnt, StatusResponse.SUCCESS, SUCCESSFUL_CREATED);
 	}
 
 	@Override
@@ -64,7 +73,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 		if (accnt != null) {
 			return builder.createAccountResult(accnt, StatusResponse.SUCCESS, " FOUND ");
 		}
-		return builder.createAccountResult(id, StatusResponse.ERROR, "No account Found");
+		return builder.createAccountResult(id, StatusResponse.ERROR, NO_ACCOUNT_FOUND);
 	}
 
 	@Override
@@ -74,7 +83,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 		Account accnt = getAccountInstance(accountRekuest.getAccountId());
 
 		if (accnt == null) {
-			return builder.createAccountResultWithRekuest(StatusResponse.ERROR, "Account not found ");
+			return builder.createAccountResultWithRekuest(StatusResponse.ERROR, ACCOUNT_NOT_FOUND);
 		}
 		checkAccountStatus(accnt); //deleted account can not be edited
 		throw new UnsupportedOperationException();
@@ -86,7 +95,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 		Account accnt = getAccountInstance(id);
 
 		if (accnt == null) {
-			return builder.createAccountResult(id, StatusResponse.ERROR, "Account not found ");
+			return builder.createAccountResult(id, StatusResponse.ERROR, ACCOUNT_NOT_FOUND);
 		}
 		boolean res;
 		try {
@@ -117,7 +126,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 
 	private boolean checkAccountStatus(Account account) throws AccountException {
 		if (account.getAccountStatus() == AccountStatus.DELETED) {
-			throw new AccountException("Account is already deleted ");
+			throw new AccountException(ACCOUNT_IS_NO_LONGER_ACTIVE);
 		}
 		return true;
 	}
@@ -127,7 +136,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 			String cpAccountId) throws AccountException {
 
 		boolean done = false;
-		Account debitedAccount = getAccountInstance(accountId);
+		final Account debitedAccount = getAccountInstance(accountId);
 
 		if (debitedAccount == null) {
 			throw new AccountNotFoundException(accountId);
@@ -152,17 +161,13 @@ public class InMemoryAccountService implements AccountServiceInternal {
 			return addAccountEntry(accountId, amount, true, transactionReferenceId, rekuestId, TransactionStatus.DONE,
 					cpAccountId, currentBalance, newbalance);
 		else
-			throw new AccountException("Not enough funds " + accountId);
+			throw new AccountException(NOT_ENOUGH_FUNDS + accountId);
 	}
 
 	private AccountEntry addAccountEntry(String accId, double amount, boolean debit, String transactionReferenceId,
 			String rekuestId, TransactionStatus transactionStatus, String cpAccountId,  double oldBalance, double newBalance) {
 		AccountEntry entry = new AccountEntry(amount, debit, transactionReferenceId, rekuestId, transactionStatus,
 				cpAccountId,  oldBalance, newBalance);
-
-		//System.out.println("AccountEntry Added for " + accId + " Entry Id " + entry.getEntryId() + " Tran Ref Id "
-		//		+ transactionReferenceId);
-
 		accountEntries.get(accId).add(entry);
 		return entry;
 	}
@@ -170,7 +175,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 	@Override
 	public AccountEntry creditAccount(String accountId, double amount, String transactionReferenceId, String rekuestId,
 			String cpAccountId) throws AccountException {
-		Account creditedAccount = getAccountInstance(accountId);
+		final Account creditedAccount = getAccountInstance(accountId);
 
 		if (creditedAccount == null) {
 			throw new AccountNotFoundException(accountId);
@@ -195,10 +200,8 @@ public class InMemoryAccountService implements AccountServiceInternal {
 			return addAccountEntry(accountId, amount, false, transactionReferenceId, rekuestId, TransactionStatus.DONE,
 					cpAccountId, balance, newbalance);
 		else
-			throw new AccountException("UnknownError could not credit Account " + accountId);
-	}
-
-	public final int numOfAttempts = 20;
+			throw new AccountException(UNKNOWN_ERROR_COULD_NOT_CREDIT_ACCOUNT + accountId);
+	}	
 
 	@Override
 	public Collection<AccountEntry> getAccountEntries(String accntId) {
