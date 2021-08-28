@@ -8,8 +8,7 @@ import home.test.api.example.moneytransfer.spi.utils.ValuedEnumDeserializer;
 
 public enum TransactionType implements ValuedEnum<TransactionType> {
 	
-	DEBIT_CASH("debit"),
-	
+	DEBIT_CASH("debit"),	
 	CREDIT_CASH("credit"),
 	DEBIT_ACCOUNT("transferDebit"),
 	CREDIT_ACCOUNT("transferCredit"),

@@ -12,7 +12,4 @@ public enum StatusResponse {
 	public String getStatus() {
 		return status;
 	}
-	
-	
-	
 }

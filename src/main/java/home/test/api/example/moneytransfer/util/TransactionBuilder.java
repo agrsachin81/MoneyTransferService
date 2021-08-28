@@ -18,6 +18,7 @@ public final class TransactionBuilder {
 	private TransactionRekuest rekuest;
 	private String transactionReferenceId;
 	private long timestamp;
+	private static final AtomicInteger idCounter = new AtomicInteger();
 
 	private static ThreadLocal<TransactionBuilder> transactBuilder = new ThreadLocal<TransactionBuilder>() {
 		public TransactionBuilder initialValue() {
@@ -50,9 +51,7 @@ public final class TransactionBuilder {
 		TransactionBuilder builder = createBuilder();
 		builder.withTransactionRekuest(rekuest);
 		return builder;
-	}
-
-	private static AtomicInteger idCounter = new AtomicInteger();
+	}	
 
 	public TransactionResult createTransactionResult(StatusResponse statusResponse, TransactionStatus transactionStatus,
 			String message, String accountId, boolean isDebit, boolean isCash) {
