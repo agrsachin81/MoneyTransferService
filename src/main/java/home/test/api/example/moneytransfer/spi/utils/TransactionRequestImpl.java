@@ -5,28 +5,33 @@ import java.util.Optional;
 import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
 
-public final class TransactionRekuestImpl implements TransactionRekuest {
+public final class TransactionRequestImpl implements TransactionRekuest {
 
 	private final Optional<String> cpAccountId;
+	private final String cashReferenceId;
+	private final String cashLocation;
+	private final double amount;
+	private final String transactionRekuestId;
+	private final TransactionType transactionType;
 
-	public TransactionRekuestImpl(double amount, String transactionRekuestId) {
+	public TransactionRequestImpl(double amount, String transactionRekuestId) {
 		this(null, amount, transactionRekuestId, TransactionType.DEBIT_CASH, null, null);
 	}
 
-	public TransactionRekuestImpl(double amount, String transactionRekuestId, TransactionType transactionType) {
+	public TransactionRequestImpl(double amount, String transactionRekuestId, TransactionType transactionType) {
 		this(null, amount, transactionRekuestId, transactionType, null, null);
 	}
 
-	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId) {
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId) {
 		this(cpAccountId, amount, transactionRekuestId, TransactionType.DEBIT_ACCOUNT, null, null);
 	}
 
-	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId,
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId,
 			TransactionType transactionType) {
 		this(cpAccountId, amount, transactionRekuestId, transactionType, null, null);
 	}
 
-	public TransactionRekuestImpl(String cpAccountId, double amount, String transactionRekuestId,
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId,
 			TransactionType transactionType, String cashReferenceId, String cashLocationId) {
 		super();
 		this.cpAccountId = Optional.ofNullable(cpAccountId);
@@ -38,10 +43,6 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 		this.cashReferenceId = cashReferenceId;
 		this.cashLocation = cashLocationId;
 	}
-
-	private final double amount;
-	private final String transactionRekuestId;
-	private final TransactionType transactionType;
 
 	@Override
 	public Optional<String> getCpAccountId() {
@@ -79,12 +80,8 @@ public final class TransactionRekuestImpl implements TransactionRekuest {
 		return Optional.ofNullable(cashLocation);
 	}
 
-	private final String cashReferenceId;
-	private final String cashLocation;
-
 	@Override
 	public boolean isCash() {
 		return TransactionType.CASH_TRANSACTIONS.contains(transactionType);
 	}
-
 }

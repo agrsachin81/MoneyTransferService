@@ -34,9 +34,9 @@ import home.test.api.example.moneytransfer.service.internal.AccountServiceIntern
 import home.test.api.example.moneytransfer.spi.enums.AccountStatus;
 import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
-import home.test.api.example.moneytransfer.spi.interfaces.AccountRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
-import home.test.api.example.moneytransfer.spi.utils.AccountRekuestImpl;
+import home.test.api.example.moneytransfer.spi.utils.AccountRequestImpl;
 
 /**
  * All the multi-
@@ -70,7 +70,7 @@ public class AccountServiceTest {
 	@Test
 	public void testAddAccountWithZeroBalance() {
 
-		AccountRekuest acc = new AccountRekuestImpl("mkm", "mobileNumber");
+		AccountRequest acc = new AccountRequestImpl("mkm", "mobileNumber");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 		assertEquals("Simple accnt add should have been successful", StatusResponse.SUCCESS, res.getStatus());
@@ -98,7 +98,7 @@ public class AccountServiceTest {
 	public void testAddAccountWithPositiveBalance() {
 
 		double balance = 100.0;
-		AccountRekuest rekuest = new AccountRekuestImpl("mkm", "mobileNumber", balance);
+		AccountRequest rekuest = new AccountRequestImpl("mkm", "mobileNumber", balance);
 		AccountResult addResult = service.addAccount(rekuest);
 		assertEquals("+vebalance AccountStatus should have been CREATED", AccountStatus.CREATED,
 				addResult.getAccountStatus());
@@ -127,7 +127,7 @@ public class AccountServiceTest {
 	@Test
 	public void testAddAccountWithNegativeBalance() {
 
-		AccountRekuest acc = new AccountRekuestImpl("mkmopoiu", "gygii78789", -100.0);
+		AccountRequest acc = new AccountRequestImpl("mkmopoiu", "gygii78789", -100.0);
 		AccountResult res = service.addAccount(acc);
 		assertEquals("-ve Balance accnt add should have been failed", StatusResponse.ERROR, res.getStatus());
 
@@ -139,7 +139,7 @@ public class AccountServiceTest {
 	public void testAccountIdUnikueness() {
 		Map<String, AccountResult> accountIds = new HashMap<>();
 		for (int i = 0; i < 1000; i++) {
-			AccountRekuest rekuest = new AccountRekuestImpl("mkm_" + i, "0000000" + i, 100.0 + i);
+			AccountRequest rekuest = new AccountRequestImpl("mkm_" + i, "0000000" + i, 100.0 + i);
 			AccountResult addResult = service.addAccount(rekuest);
 			assertEquals("+vebalance inloop AccountStatus should have been CREATED", AccountStatus.CREATED,
 					addResult.getAccountStatus());
@@ -187,7 +187,7 @@ public class AccountServiceTest {
 	private double[] updateBalanceConcurrentlyHelper(final double originalBalance, final double cpOriginalBalance,
 			final int numOfThreads_CP, final double drip, TransferServiceCalbackAdapter<AccountEntry> transferimpl) {
 		AccountResult originatingAccount = service
-				.addAccount(new AccountRekuestImpl("BIGACCMultithreaded", "0000000", originalBalance));
+				.addAccount(new AccountRequestImpl("BIGACCMultithreaded", "0000000", originalBalance));
 
 		// check the balance is correct after 2 threads
 		// both are continuously debiting 2 each
@@ -196,7 +196,7 @@ public class AccountServiceTest {
 
 		AccountResult[] cpAccounts = new AccountResult[numOfThreads_CP];
 		List<AccountResult> list = IntStream.range(0, numOfThreads_CP).mapToObj(i -> {
-			cpAccounts[i] = service.addAccount(new AccountRekuestImpl("MIO_" + i, "123456798" + i, cpOriginalBalance));
+			cpAccounts[i] = service.addAccount(new AccountRequestImpl("MIO_" + i, "123456798" + i, cpOriginalBalance));
 			return cpAccounts[i];
 		}).collect(Collectors.toList());
 
@@ -324,7 +324,7 @@ public class AccountServiceTest {
 	@Test
 	public void testEditAccount() {
 	
-		AccountRekuest acc = new AccountRekuestImpl("edit_accountTest1", "mobileNumber_edit1");
+		AccountRequest acc = new AccountRequestImpl("edit_accountTest1", "mobileNumber_edit1");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 		assertEquals("Simple accnt add should have been successful", StatusResponse.SUCCESS, res.getStatus());
@@ -334,7 +334,7 @@ public class AccountServiceTest {
 		try {
 			String mobileNumberEdited = "mobileNumber_edit2";
 			String name_afterEdit = "edit_accountTest2";
-			res = service.editAccount(new AccountRekuestImpl(res.getAccountId(), name_afterEdit, mobileNumberEdited, 200.0));
+			res = service.editAccount(new AccountRequestImpl(res.getAccountId(), name_afterEdit, mobileNumberEdited, 200.0));
 		
 			assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 			assertEquals("Edit account should have been succeeded", StatusResponse.SUCCESS, res.getStatus());
@@ -353,7 +353,7 @@ public class AccountServiceTest {
 
 	@Test
 	public void testEditUnknownAccount() {
-		AccountRekuest acc = new AccountRekuestImpl(UNKNOWN_ACCOUNT_ID,"unknwonAccountName", "mobileNumber_Sample",0.0);
+		AccountRequest acc = new AccountRequestImpl(UNKNOWN_ACCOUNT_ID,"unknwonAccountName", "mobileNumber_Sample",0.0);
 		boolean exceptionThrown = false;
 		AccountResult res;
 		try {
@@ -376,7 +376,7 @@ public class AccountServiceTest {
 	@Ignore
 	@Test
 	public void testDuplicateAddAccount() {
-		AccountRekuest acc = new AccountRekuestImpl("dup_accountTest", "mobileNumber_dup");
+		AccountRequest acc = new AccountRequestImpl("dup_accountTest", "mobileNumber_dup");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 		assertEquals("Simple accnt add should have been successful", StatusResponse.SUCCESS, res.getStatus());
@@ -392,7 +392,7 @@ public class AccountServiceTest {
 	
 	@Test
 	public void testDeleteAccount() {
-		AccountRekuest acc = new AccountRekuestImpl("mkm_TOBEDLETED", "mobileNumber_TOBEDELETED");
+		AccountRequest acc = new AccountRequestImpl("mkm_TOBEDLETED", "mobileNumber_TOBEDELETED");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 

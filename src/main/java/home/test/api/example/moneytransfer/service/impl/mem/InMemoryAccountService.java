@@ -15,7 +15,7 @@ import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
 import home.test.api.example.moneytransfer.spi.enums.TransactionStatus;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountNotFoundException;
-import home.test.api.example.moneytransfer.spi.interfaces.AccountRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 import home.test.api.example.moneytransfer.util.AccountBuilder;
 
@@ -37,7 +37,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 	}
 
 	@Override
-	public AccountResult addAccount(AccountRekuest acc) {
+	public AccountResult addAccount(AccountRequest acc) {
 
 		// TODO: create a validation chain by designing chain of responsibility
 		// todo: implement checks, validation like name, mobile_number already exists
@@ -76,7 +76,7 @@ public class InMemoryAccountService implements AccountServiceInternal {
 	}
 
 	@Override
-	public AccountResult editAccount(AccountRekuest accountRekuest) throws AccountException {
+	public AccountResult editAccount(AccountRequest accountRekuest) throws AccountException {
 		AccountBuilder builder = AccountBuilder.createAccountBuilder(accountRekuest);
 		
 		Account accnt = getAccountInstance(accountRekuest.getAccountId());

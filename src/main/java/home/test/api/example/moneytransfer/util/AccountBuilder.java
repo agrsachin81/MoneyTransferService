@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import home.test.api.example.moneytransfer.entities.Account;
 import home.test.api.example.moneytransfer.spi.enums.AccountStatus;
 import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
-import home.test.api.example.moneytransfer.spi.interfaces.AccountRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 
 public final class AccountBuilder {
 
-	private AccountRekuest rekuest;
+	private AccountRequest rekuest;
 
 	private static ThreadLocal<AccountBuilder> accountBuilder = new ThreadLocal<AccountBuilder>() {
 		public AccountBuilder initialValue() {
@@ -24,7 +24,7 @@ public final class AccountBuilder {
 
 	}
 
-	public static AccountBuilder createAccountBuilder(AccountRekuest rekuest) {
+	public static AccountBuilder createAccountBuilder(AccountRequest rekuest) {
 		AccountBuilder builder = getAccountBuilder();
 		builder.withAccountRekuest(rekuest);
 		return builder;
@@ -35,7 +35,7 @@ public final class AccountBuilder {
 		return builder;
 	}
 
-	public AccountBuilder withAccountRekuest(AccountRekuest rekuest) {
+	public AccountBuilder withAccountRekuest(AccountRequest rekuest) {
 		this.rekuest = rekuest;
 		return this;
 	}

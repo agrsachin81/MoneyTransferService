@@ -1,22 +1,22 @@
 package home.test.api.example.moneytransfer.spi.utils;
 
-import home.test.api.example.moneytransfer.spi.interfaces.AccountRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 
-public final class AccountRekuestImpl implements AccountRekuest{
+public final class AccountRequestImpl implements AccountRequest{
 
 	private final String accountId;
 	private final String name;
 	private final String mobileNumber;
 	private final double balance;
-	public AccountRekuestImpl(String name, String mobileNumber) {
+	public AccountRequestImpl(String name, String mobileNumber) {
 		this(null, name, mobileNumber, 0.0);
 	}
 	
-	public AccountRekuestImpl(String name, String mobileNumber, double balance) {
+	public AccountRequestImpl(String name, String mobileNumber, double balance) {
 		this(null, name, mobileNumber, balance);
 	}
 	
-	public AccountRekuestImpl(String accountId, String name, String mobileNumber, double balance) {
+	public AccountRequestImpl(String accountId, String name, String mobileNumber, double balance) {
 		this.accountId = accountId;
 		this.mobileNumber= mobileNumber;
 		this.name = name;

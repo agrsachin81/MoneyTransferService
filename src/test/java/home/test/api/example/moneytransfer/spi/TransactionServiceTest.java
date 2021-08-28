@@ -21,8 +21,8 @@ import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
-import home.test.api.example.moneytransfer.spi.utils.AccountRekuestImpl;
-import home.test.api.example.moneytransfer.spi.utils.TransactionRekuestImpl;
+import home.test.api.example.moneytransfer.spi.utils.AccountRequestImpl;
+import home.test.api.example.moneytransfer.spi.utils.TransactionRequestImpl;
 
 /**
  * Here we need to mock the account Service, and since we the internal design, we known the multi-threaded aspects are not relevant here
@@ -42,12 +42,12 @@ public class TransactionServiceTest {
 	@BeforeClass
 	public static void setup() {
 		mockAccountService = new MockAccountServiceInternal();
-		AccountRekuestImpl acc = new AccountRekuestImpl("ACC1", "+91989098089");
+		AccountRequestImpl acc = new AccountRequestImpl("ACC1", "+91989098089");
 		emptyAccId1 = mockAccountService.addAccount(acc).getAccountId();
-		AccountRekuestImpl acc2 = new AccountRekuestImpl("ACC2", "8u9877655466");
+		AccountRequestImpl acc2 = new AccountRequestImpl("ACC2", "8u9877655466");
 		emptyAccId2 = mockAccountService.addAccount(acc2).getAccountId();
 
-		accIdwith200_000 = mockAccountService.addAccount(new AccountRekuestImpl("ACC3", "000000000", 200_000.0))
+		accIdwith200_000 = mockAccountService.addAccount(new AccountRequestImpl("ACC3", "000000000", 200_000.0))
 				.getAccountId();
 
 		System.out.println("accIdWith200 " + accIdwith200_000);
@@ -64,7 +64,7 @@ public class TransactionServiceTest {
 
 	@Test
 	public void testNullValuePassed() {
-		TransactionRekuest transaction = new TransactionRekuestImpl(null, 100.0, "908980");
+		TransactionRekuest transaction = new TransactionRequestImpl(null, 100.0, "908980");
 
 		TransactionResult response = transactService.transfer(transaction, null);
 
@@ -74,7 +74,7 @@ public class TransactionServiceTest {
 
 	@Test
 	public void testEmptyAccountTransaction() {
-		TransactionRekuest transaction = new TransactionRekuestImpl(emptyAccId2, 100.0, "909090");
+		TransactionRekuest transaction = new TransactionRequestImpl(emptyAccId2, 100.0, "909090");
 
 		TransactionResult response = transactService.transfer(transaction, emptyAccId1);
 
@@ -87,7 +87,7 @@ public class TransactionServiceTest {
 
 		mockAccountService.acceptAllAccountcreditDebit();
 
-		TransactionRekuest transaction = new TransactionRekuestImpl(emptyAccId1, 100.0, "909090");
+		TransactionRekuest transaction = new TransactionRequestImpl(emptyAccId1, 100.0, "909090");
 		Account accnt = mockAccountService.getAccountInstance(accIdwith200_000);
 		Account accnt2 = mockAccountService.getAccountInstance(emptyAccId1);
 		
@@ -125,7 +125,7 @@ public class TransactionServiceTest {
 		Account accnt2 = mockAccountService.getAccountInstance(emptyAccId1);
 		double oldBalance = accnt.getBalance();
 		double accnt2OldBalance = accnt2.getBalance();
-		TransactionRekuest transaction = new TransactionRekuestImpl(emptyAccId1, 100.0, "909090");
+		TransactionRekuest transaction = new TransactionRequestImpl(emptyAccId1, 100.0, "909090");
 		TransactionResult response = transactService.transfer(transaction, accIdwith200_000);
 
 		assertEquals("Debite is failed", TransactionStatus.DEBIT_FAILED, response.getTransactionStatus());
@@ -144,7 +144,7 @@ public class TransactionServiceTest {
 		Account accnt2 = mockAccountService.getAccountInstance(emptyAccId1);
 		double oldBalance = accnt.getBalance();
 		double accnt2OldBalance = accnt2.getBalance();
-		TransactionRekuest transaction = new TransactionRekuestImpl(emptyAccId1, 100.0, "909090");
+		TransactionRekuest transaction = new TransactionRequestImpl(emptyAccId1, 100.0, "909090");
 		TransactionResult response = transactService.transfer(transaction, accIdwith200_000);
 
 		assertEquals("Empty Account must succedd", TransactionStatus.CREDIT_FAILED_DEBIT_NOT_REVERTED,
@@ -161,7 +161,7 @@ public class TransactionServiceTest {
 
 		Account accnt = mockAccountService.getAccountInstance(accIdwith200_000);
 		double oldBalance = accnt.getBalance();
-		TransactionRekuest transaction = new TransactionRekuestImpl(emptyAccId1, 100.0, "909090");
+		TransactionRekuest transaction = new TransactionRequestImpl(emptyAccId1, 100.0, "909090");
 		TransactionResult response = transactService.transfer(transaction, accIdwith200_000);
 
 		assertEquals("Empty Account must succedd", TransactionStatus.CREDIT_FAILED_DEBIT_REVERTED,
@@ -174,9 +174,9 @@ public class TransactionServiceTest {
 	
 	@Test
 	public void testCreditedCashTransaction() {
-		AccountResult accRes = mockAccountService.addAccount(new AccountRekuestImpl("DebitCashAccId", "989897997"));
+		AccountResult accRes = mockAccountService.addAccount(new AccountRequestImpl("DebitCashAccId", "989897997"));
 		double amount_credited = 100.0;
-		TransactionRekuest transaction = new TransactionRekuestImpl(amount_credited, "9089809090",TransactionType.CREDIT_CASH);
+		TransactionRekuest transaction = new TransactionRequestImpl(amount_credited, "9089809090",TransactionType.CREDIT_CASH);
 		TransactionResult response = transactService.transfer(transaction, accRes.getAccountId());
 		assertEquals("Overall status must be success", StatusResponse.SUCCESS, response.getStatus());
 		assertEquals("credit cash should have passed on EmptyAccount", TransactionStatus.DONE,	response.getTransactionStatus());
@@ -187,9 +187,9 @@ public class TransactionServiceTest {
 	
 	@Test
 	public void testDebitCashTransaction() {
-		AccountResult accRes = mockAccountService.addAccount(new AccountRekuestImpl("DebitCashAccId", "989897997",900.0));
+		AccountResult accRes = mockAccountService.addAccount(new AccountRequestImpl("DebitCashAccId", "989897997",900.0));
 		double amount_debited = 100.0;
-		TransactionRekuest transaction = new TransactionRekuestImpl(amount_debited, "9089809090",TransactionType.DEBIT_CASH);
+		TransactionRekuest transaction = new TransactionRequestImpl(amount_debited, "9089809090",TransactionType.DEBIT_CASH);
 		TransactionResult response = transactService.transfer(transaction, accRes.getAccountId());
 		assertEquals("Overall status must be Success", StatusResponse.SUCCESS, response.getStatus());
 		assertEquals("Debit cash should have passed on EmptyAccount", TransactionStatus.DONE,	response.getTransactionStatus());
@@ -200,9 +200,9 @@ public class TransactionServiceTest {
 	
 	@Test
 	public void testcpAcountIdMissingWhileAccountTransaction() {
-		AccountResult accRes = mockAccountService.addAccount(new AccountRekuestImpl("DebitAccId_invalidInput", "989897997",900.0));
+		AccountResult accRes = mockAccountService.addAccount(new AccountRequestImpl("DebitAccId_invalidInput", "989897997",900.0));
 		double amount_debited = 100.0;
-		TransactionRekuest transaction = new TransactionRekuestImpl(null,amount_debited, "9089809090");
+		TransactionRekuest transaction = new TransactionRequestImpl(null,amount_debited, "9089809090");
 		TransactionResult response = transactService.transfer(transaction, accRes.getAccountId());
 		assertEquals("Overall status must be Success", StatusResponse.ERROR, response.getStatus());
 		assertEquals("Debit cash should have passed on EmptyAccount", TransactionStatus.INVALID_INPUT,	response.getTransactionStatus());

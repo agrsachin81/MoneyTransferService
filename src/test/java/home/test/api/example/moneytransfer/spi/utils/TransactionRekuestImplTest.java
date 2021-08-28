@@ -42,7 +42,7 @@ public class TransactionRekuestImplTest {
 		String jsonStr = "{amount:" + 900.0
 		+ ",cpAccountId:" + "someAccid" + ",transactionRekuestId:trasnRekId_9 }";
 
-		TransactionRekuestImpl objFromJson = json.fromJson(jsonStr, TransactionRekuestImpl.class);
+		TransactionRequestImpl objFromJson = json.fromJson(jsonStr, TransactionRequestImpl.class);
 		
 		String missing = findNullObjectProps(objFromJson, TransactionRekuest.class);
 
@@ -55,14 +55,14 @@ public class TransactionRekuestImplTest {
 		String jsonStr = "{amount:" + 900.0
 		+ ",transactionRekuestId:trasnRekId_9,transactionType:debit}";
 
-		TransactionRekuestImpl objFromJson = json.fromJson(jsonStr, TransactionRekuestImpl.class);
+		TransactionRequestImpl objFromJson = json.fromJson(jsonStr, TransactionRequestImpl.class);
 		
 		String missing = findNullObjectProps(objFromJson, TransactionRekuest.class);
 
 		assertEquals("Null props are  " + missing, 0, missing.length());
 	}
 	
-	public static String findNullObjectProps(TransactionRekuestImpl obj, Class<?> class1) {
+	public static String findNullObjectProps(TransactionRequestImpl obj, Class<?> class1) {
 		String missing= "";
 		for (Method method : class1.getMethods()) {
 			String name = method.getName();
