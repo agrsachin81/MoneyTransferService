@@ -28,8 +28,8 @@ import home.test.api.example.moneytransfer.spi.TransactionService;
 import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
-import home.test.api.example.moneytransfer.spi.utils.AccountRekuestImpl;
-import home.test.api.example.moneytransfer.spi.utils.TransactionRekuestImpl;
+import home.test.api.example.moneytransfer.spi.utils.AccountRequestImpl;
+import home.test.api.example.moneytransfer.spi.utils.TransactionRequestImpl;
 
 /**
  * MOCK shall not be used while executing integration tests, end 2 end tests As
@@ -53,26 +53,26 @@ public class ITTransactionServiceE2ETest {
 	public static void setup() {
 		MoneyTransferAbstractServiceFactory factory = MoneyTransferInMemoryServiceFactory.getInstance();
 		service = factory.getAccountService();
-		AccountRekuestImpl acc = new AccountRekuestImpl("ACC1", "+91989098089");
+		AccountRequestImpl acc = new AccountRequestImpl("ACC1", "+91989098089");
 		emptyAccId1 = service.addAccount(acc).getAccountId();
-		AccountRekuestImpl acc2 = new AccountRekuestImpl("ACC2", "8u9877655466");
+		AccountRequestImpl acc2 = new AccountRequestImpl("ACC2", "8u9877655466");
 		emptyAccId2 = service.addAccount(acc2).getAccountId();
 
-		accIdwith200_000 = service.addAccount(new AccountRekuestImpl("ACC3", "000000000", 200_000.0)).getAccountId();
+		accIdwith200_000 = service.addAccount(new AccountRequestImpl("ACC3", "000000000", 200_000.0)).getAccountId();
 
-		//System.out.println("accIdWith200 " + accIdwith200_000);
-		//System.out.println("emptyAccId1 " + emptyAccId1);
-		//System.out.println("emptyAccId2 " + emptyAccId2);
+		// System.out.println("accIdWith200 " + accIdwith200_000);
+		// System.out.println("emptyAccId1 " + emptyAccId1);
+		// System.out.println("emptyAccId2 " + emptyAccId2);
 
 		transactService = factory.getTransactionService();
 	}
 
 	@Test
 	public void testConcurrentTransactionDebitSameAccount() {
-		// Single account (10000) is debited from mulitple threads say 5 to five
+		// Single account (10000) is debit from multiple threads say 5 to five
 		// accounts(zero) by a drip of 2 each
 		// check till it stops transferring further
-		// check the balance of all other accounts sum of which should be amount debited
+		// check the balance of all other accounts sum of which should be amount debit
 		// check the balance is not less then zero
 		double originalBalance = 80000.0;
 		int numOfThreads = 5;
@@ -82,7 +82,7 @@ public class ITTransactionServiceE2ETest {
 
 					int counterValue = counter.getAndIncrement();
 					return transactService.transfer(
-							new TransactionRekuestImpl(cpAccounId, 2, index + "_" + counterValue), originAccounId);
+							new TransactionRequestImpl(cpAccounId, 2, index + "_" + counterValue), originAccounId);
 				});
 
 		System.out.println("TotalDebited " + retValues[0] + " total credited " + retValues[1] + " OrigaccountBalance "
@@ -98,7 +98,7 @@ public class ITTransactionServiceE2ETest {
 			TransferServiceCalbackAdapter<TransactionResult> transferCall) {
 
 		AccountResult debitedAccount = service
-				.addAccount(new AccountRekuestImpl("BIGACCMulti)TRANSFER", "0000000", originalBalance));
+				.addAccount(new AccountRequestImpl("BIGACCMulti)TRANSFER", "0000000", originalBalance));
 
 		System.out.println("DEBITED ACCNT ID " + debitedAccount.getAccountId() + " BALANCE " + originalBalance
 				+ " objeRef " + debitedAccount.toString());
@@ -106,7 +106,7 @@ public class ITTransactionServiceE2ETest {
 		AccountResult[] creditedAccounts = new AccountResult[numOfThreads_CP];
 		List<AccountResult> list = IntStream.range(0, numOfThreads_CP).mapToObj(i -> {
 			creditedAccounts[i] = service
-					.addAccount(new AccountRekuestImpl("MIO_" + i, "123456798" + i, cpOrigBalance));
+					.addAccount(new AccountRequestImpl("MIO_" + i, "123456798" + i, cpOrigBalance));
 			System.out.println("CP ACCNT ID " + creditedAccounts[i].getAccountId());
 			return creditedAccounts[i];
 		}).collect(Collectors.toList());
@@ -179,7 +179,7 @@ public class ITTransactionServiceE2ETest {
 		double[] retValues = testConcurrentTransactionHelper(numOfThreads, originalBalance, cpOrigBalance,
 				(index, cpAccounId, originAccounId) -> {
 					int counterValue = counter[index].getAndIncrement();
-					return transactService.transfer(new TransactionRekuestImpl(cpAccounId, drip,
+					return transactService.transfer(new TransactionRequestImpl(cpAccounId, drip,
 							index + "_" + counterValue, TransactionType.CREDIT_ACCOUNT), originAccounId);
 				});
 
@@ -221,9 +221,9 @@ public class ITTransactionServiceE2ETest {
 
 					if (index == 1 || index == 3) {
 						return transactService.transfer(
-								new TransactionRekuestImpl(cpAccounId, 2, index + "_" + counterValue), originAccounId);
+								new TransactionRequestImpl(cpAccounId, 2, index + "_" + counterValue), originAccounId);
 					}
-					return transactService.transfer(new TransactionRekuestImpl(cpAccounId, drip,
+					return transactService.transfer(new TransactionRequestImpl(cpAccounId, drip,
 							index + "_" + counterValue, TransactionType.CREDIT_ACCOUNT), originAccounId);
 				});
 
