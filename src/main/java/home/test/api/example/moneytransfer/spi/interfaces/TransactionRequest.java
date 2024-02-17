@@ -4,8 +4,12 @@ import java.util.Optional;
 
 import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 
-public interface TransactionRekuest {
+public interface TransactionRequest {
 
+	/**
+	 *
+	 * @return. the Optional CounterPartyAccount Id
+	 */
 	public Optional<String> getCpAccountId();	
 	public double getAmount();	
 	
@@ -13,7 +17,7 @@ public interface TransactionRekuest {
 	 * Must be non null
 	 * @return
 	 */
-	public String getTransactionRekuestId();
+	public String getTransactionRequestId();
 	
 	/**
 	 * if null then 

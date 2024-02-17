@@ -14,20 +14,20 @@ public class MockAccountServiceInternal extends InMemoryAccountService implement
 	// test the behavior of TransactionService
 
 	@Override
-	public AccountEntry debitAccount(String accountId, double amount, String transactionReferenceId, String rekuestId,
+	public AccountEntry debitAccount(String accountId, double amount, String transactionReferenceId, String requestId,
 			String cpAccountId) throws AccountException {
 		if (acceptDebit) {
-			return super.debitAccount(accountId, amount, transactionReferenceId, rekuestId, cpAccountId);
+			return super.debitAccount(accountId, amount, transactionReferenceId, requestId, cpAccountId);
 		}
 		throw new AccountException("Unable to debit Account");
 	}
 
 	@Override
-	public AccountEntry creditAccount(String accountId, double amount, String transactionReferenceId, String rekuestId,
+	public AccountEntry creditAccount(String accountId, double amount, String transactionReferenceId, String requestId,
 			String cpAccountId) throws AccountException {
 		if (acceptCredit) {
 
-			return super.creditAccount(accountId, amount, transactionReferenceId, rekuestId, cpAccountId);
+			return super.creditAccount(accountId, amount, transactionReferenceId, requestId, cpAccountId);
 		}
 		if (enableCreditAfterRejectingOne) {
 			acceptCredit = true;

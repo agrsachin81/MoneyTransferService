@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import home.test.api.example.moneytransfer.mock.CallableObjectFactory;
 import home.test.api.example.moneytransfer.mock.ThreadPoolManager;
-import home.test.api.example.moneytransfer.mock.TransferServiceCalbackAdapter;
+import home.test.api.example.moneytransfer.mock.TransferServiceCallbackAdapter;
 import home.test.api.example.moneytransfer.mock.TransferServiceCallback;
 import home.test.api.example.moneytransfer.service.impl.MoneyTransferInMemoryServiceFactory;
 import home.test.api.example.moneytransfer.spi.AccountService;
@@ -95,7 +95,7 @@ public class ITTransactionServiceE2ETest {
 	}
 
 	private double[] testConcurrentTransactionHelper(int numOfThreads_CP, double originalBalance, double cpOrigBalance,
-			TransferServiceCalbackAdapter<TransactionResult> transferCall) {
+			TransferServiceCallbackAdapter<TransactionResult> transferCall) {
 
 		AccountResult debitedAccount = service
 				.addAccount(new AccountRequestImpl("BIGACCMulti)TRANSFER", "0000000", originalBalance));

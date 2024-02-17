@@ -14,10 +14,10 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
-import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.TransactionRequest;
 import home.test.api.example.moneytransfer.util.GsonHelper;
 
-public class TransactionRekuestImplTest {
+public class TransactionRequestImplTest {
 
 	static Gson json = GsonHelper.createJsonSerializerDeserializer();
 	@BeforeClass
@@ -40,11 +40,11 @@ public class TransactionRekuestImplTest {
 	public void testJsonSerializationNotNullTransfer() {
 
 		String jsonStr = "{amount:" + 900.0
-		+ ",cpAccountId:" + "someAccid" + ",transactionRekuestId:trasnRekId_9 }";
+		+ ",cpAccountId:" + "someAccid" + ",transactionRequestId:trasnRekId_9 }";
 
 		TransactionRequestImpl objFromJson = json.fromJson(jsonStr, TransactionRequestImpl.class);
 		
-		String missing = findNullObjectProps(objFromJson, TransactionRekuest.class);
+		String missing = findNullObjectProps(objFromJson, TransactionRequest.class);
 
 		assertEquals("Null props are  " + missing, 0, missing.length());
 	}
@@ -53,11 +53,11 @@ public class TransactionRekuestImplTest {
 	public void testJsonSerializationNotNullCash() {
 
 		String jsonStr = "{amount:" + 900.0
-		+ ",transactionRekuestId:trasnRekId_9,transactionType:debit}";
+		+ ",transactionRequestId:trasnRekId_9,transactionType:debit}";
 
 		TransactionRequestImpl objFromJson = json.fromJson(jsonStr, TransactionRequestImpl.class);
 		
-		String missing = findNullObjectProps(objFromJson, TransactionRekuest.class);
+		String missing = findNullObjectProps(objFromJson, TransactionRequest.class);
 
 		assertEquals("Null props are  " + missing, 0, missing.length());
 	}

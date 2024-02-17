@@ -12,63 +12,53 @@ import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 
 public final class AccountBuilder {
 
-	private AccountRequest rekuest;
+	private AccountRequest request;
 
-	private static ThreadLocal<AccountBuilder> accountBuilder = new ThreadLocal<AccountBuilder>() {
-		public AccountBuilder initialValue() {
-			return new AccountBuilder();
-		}
-	};
+	private static final ThreadLocal<AccountBuilder> ACCOUNT_BUILDER_THREAD_LOCAL = ThreadLocal.withInitial(AccountBuilder::new);
 
 	private AccountBuilder() {
 
 	}
 
-	public static AccountBuilder createAccountBuilder(AccountRequest rekuest) {
-		AccountBuilder builder = getAccountBuilder();
-		builder.withAccountRekuest(rekuest);
-		return builder;
+	public static AccountBuilder createAccountBuilder(AccountRequest request) {
+		AccountBuilder builder = getAccountBuilderThreadLocal();
+		return builder.withAccountRequest(request);
 	}
 
-	public static AccountBuilder getAccountBuilder() {
-		AccountBuilder builder = accountBuilder.get().reset();
-		return builder;
+	public static AccountBuilder getAccountBuilderThreadLocal() {
+		return ACCOUNT_BUILDER_THREAD_LOCAL.get().reset();
 	}
 
-	public AccountBuilder withAccountRekuest(AccountRequest rekuest) {
-		this.rekuest = rekuest;
+	public AccountBuilder withAccountRequest(AccountRequest rekuest) {
+		this.request = rekuest;
 		return this;
 	}
 
 	private AccountBuilder reset() {
-		this.rekuest = null;
+		this.request = null;
 		return this;
 	}
 
 	public Account createNewAccount(String accId) {
-		return new Account(rekuest.getName(), rekuest.getMobileNumber(), accId, rekuest.getBalance());
+		return new Account(request.getName(), request.getMobileNumber(), accId, request.getBalance());
 	}
 
-	public AccountResult createAccountResultWithRekuest(StatusResponse response, String message) {
-		return new AccountResultImpl(null, rekuest.getBalance(), AccountStatus.UNKNOWN,
-				rekuest.getName(), rekuest.getMobileNumber(), response, message);
-		
+	public AccountResult createAccountResultWithRequest(StatusResponse response, String message) {
+		return new AccountResultImpl(null, request.getBalance(), AccountStatus.UNKNOWN,
+				request.getName(), request.getMobileNumber(), response, message, request.getRequestId());
 	}
 	
-	public AccountResult createAccountResult(Account account, StatusResponse response, String message) {
+	public AccountResult createAccountOpResult(Account account, StatusResponse response, String message, String requestId) {
 		return new AccountResultImpl(account.getAccountId(), account.getBalance(), account.getAccountStatus(),
-				account.getName(), account.getMobileNumber(), response, message);
+				account.getName(), account.getMobileNumber(), response, message, requestId);
 	}
 
-	public Collection<AccountResult> createAccountResults(ConcurrentMap<String,Account> accounts, StatusResponse status) {
-		
+	public Collection<AccountResult> createAccountResults(ConcurrentMap<String,Account> accounts, StatusResponse status, String requestId) {
 		//the performance can be improved
-		return accounts.values().stream().map(( account) -> {
-			return createAccountResult(account, status,"");
-		}).collect(Collectors.toList());
+		return accounts.values().stream().map(( account) -> createAccountOpResult(account, status,"", requestId)).collect(Collectors.toList());
 	}
 
-	public AccountResult createAccountResult(String id, StatusResponse status, String message) {
-		return new AccountResultImpl(id, status, message);
+	public AccountResult createAccountOpResult(String id, StatusResponse status, String message, String requestId) {
+		return new AccountResultImpl(id, status, message, requestId);
 	}
 }

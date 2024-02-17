@@ -9,13 +9,13 @@ import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
 
 public interface AccountServiceInternal extends AccountService {
 
-	public AccountEntry debitAccount(String accountId, double amount, String transactionReferenceId, String rekuestId, String cpAccountId)
+	public AccountEntry debitAccount(String accountId, double amount, String transactionReferenceId, String requestId, String cpAccountId)
 			throws AccountException;
 
-	public AccountEntry creditAccount(String accountId, double amount, String transactionReferenceId, String rekuestId, String cpAccountId)
+	public AccountEntry creditAccount(String accountId, double amount, String transactionReferenceId, String requestId, String cpAccountId)
 			throws AccountException;
 
 	Account getAccountInstance(String accountId) ;
 	
-	public Collection<AccountEntry> getAccountEntries(String accntId);
+	public Collection<AccountEntry> getAccountEntries(String accountId);
 }

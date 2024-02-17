@@ -52,7 +52,7 @@ public class AccountResultImplTest {
 	@Test
 	public void testJsonInterface() {
 		AccountResultImpl impl = new AccountResultImpl("sampleRekId", 0.0, AccountStatus.CREATED, " name",
-				" mobileNumber", StatusResponse.SUCCESS, "mnkj");
+				" mobileNumber", StatusResponse.SUCCESS, "mnkj" ,"testRequestId");
 
 		String jsonStr = json.toJson(impl);
 

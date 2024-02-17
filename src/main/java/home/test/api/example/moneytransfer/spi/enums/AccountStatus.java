@@ -20,4 +20,12 @@ public enum AccountStatus implements ValuedEnum<AccountStatus>{
 	public String getStringValue() {
 		return this.name();
 	}
+	
+	public static boolean isDebitable(AccountStatus status){
+		return status == ACTIVE || status == CREATED;
+	}
+	
+	public static boolean isCreditable(AccountStatus status){
+		return status != DELETED ;
+	}
 }

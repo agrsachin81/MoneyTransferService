@@ -3,40 +3,40 @@ package home.test.api.example.moneytransfer.spi.utils;
 import java.util.Optional;
 
 import home.test.api.example.moneytransfer.spi.enums.TransactionType;
-import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.TransactionRequest;
 
-public final class TransactionRequestImpl implements TransactionRekuest {
+public final class TransactionRequestImpl implements TransactionRequest {
 
 	private final Optional<String> cpAccountId;
 	private final String cashReferenceId;
 	private final String cashLocation;
 	private final double amount;
-	private final String transactionRekuestId;
+	private final String transactionRequestId;
 	private final TransactionType transactionType;
 
-	public TransactionRequestImpl(double amount, String transactionRekuestId) {
-		this(null, amount, transactionRekuestId, TransactionType.DEBIT_CASH, null, null);
+	public TransactionRequestImpl(double amount, String transactionRequestId) {
+		this(null, amount, transactionRequestId, TransactionType.DEBIT_CASH, null, null);
 	}
 
-	public TransactionRequestImpl(double amount, String transactionRekuestId, TransactionType transactionType) {
-		this(null, amount, transactionRekuestId, transactionType, null, null);
+	public TransactionRequestImpl(double amount, String transactionRequestId, TransactionType transactionType) {
+		this(null, amount, transactionRequestId, transactionType, null, null);
 	}
 
-	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId) {
-		this(cpAccountId, amount, transactionRekuestId, TransactionType.DEBIT_ACCOUNT, null, null);
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRequestId) {
+		this(cpAccountId, amount, transactionRequestId, TransactionType.DEBIT_ACCOUNT, null, null);
 	}
 
-	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId,
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRequestId,
 			TransactionType transactionType) {
-		this(cpAccountId, amount, transactionRekuestId, transactionType, null, null);
+		this(cpAccountId, amount, transactionRequestId, transactionType, null, null);
 	}
 
-	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRekuestId,
+	public TransactionRequestImpl(String cpAccountId, double amount, String transactionRequestId,
 			TransactionType transactionType, String cashReferenceId, String cashLocationId) {
 		super();
 		this.cpAccountId = Optional.ofNullable(cpAccountId);
 		this.amount = amount;
-		this.transactionRekuestId = transactionRekuestId;
+		this.transactionRequestId = transactionRequestId;
 
 		this.transactionType = transactionType;
 
@@ -46,7 +46,7 @@ public final class TransactionRequestImpl implements TransactionRekuest {
 
 	@Override
 	public Optional<String> getCpAccountId() {
-		if(cpAccountId==null) {
+		if(cpAccountId==null || !cpAccountId.isPresent()) {
 			return Optional.empty();
 		}
 		return cpAccountId;
@@ -58,8 +58,8 @@ public final class TransactionRequestImpl implements TransactionRekuest {
 	}
 
 	@Override
-	public String getTransactionRekuestId() {
-		return transactionRekuestId;
+	public String getTransactionRequestId() {
+		return transactionRequestId;
 	}
 
 	@Override

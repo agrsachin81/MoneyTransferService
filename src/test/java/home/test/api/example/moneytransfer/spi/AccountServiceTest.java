@@ -1,13 +1,9 @@
 package home.test.api.example.moneytransfer.spi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -17,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import home.test.api.example.moneytransfer.spi.interfaces.AccountUpdateRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,7 +24,7 @@ import home.test.api.example.moneytransfer.entities.AccountEntry;
 import home.test.api.example.moneytransfer.mock.AccountServiceAsyncCallee;
 import home.test.api.example.moneytransfer.mock.CallableObjectFactory;
 import home.test.api.example.moneytransfer.mock.ThreadPoolManager;
-import home.test.api.example.moneytransfer.mock.TransferServiceCalbackAdapter;
+import home.test.api.example.moneytransfer.mock.TransferServiceCallbackAdapter;
 import home.test.api.example.moneytransfer.mock.TransferServiceCallback;
 import home.test.api.example.moneytransfer.service.impl.mem.InMemoryAccountService;
 import home.test.api.example.moneytransfer.service.internal.AccountServiceInternal;
@@ -37,6 +34,8 @@ import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
 import home.test.api.example.moneytransfer.spi.utils.AccountRequestImpl;
+
+import static org.junit.Assert.*;
 
 /**
  * All the multi-
@@ -70,10 +69,10 @@ public class AccountServiceTest {
 	@Test
 	public void testAddAccountWithZeroBalance() {
 
-		AccountRequest acc = new AccountRequestImpl("mkm", "mobileNumber");
+		AccountRequest acc = new AccountRequestImpl("mkm", "9589967482");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
-		assertEquals("Simple accnt add should have been successful", StatusResponse.SUCCESS, res.getStatus());
+		assertEquals("Simple account add should have been successful", StatusResponse.SUCCESS, res.getStatus());
 
 		assertNotNull("Account Id must be present", res.getAccountId());
 		assertEquals("Same Name should have been returned", acc.getName(), res.getName());
@@ -84,7 +83,7 @@ public class AccountServiceTest {
 
 		AccountResult returnedAccount = service.getAccount(res.getAccountId());
 
-		assertEquals("Same accnt fetch should have succeeded but failed", StatusResponse.SUCCESS,
+		assertEquals("Same account fetch should have succeeded but failed", StatusResponse.SUCCESS,
 				returnedAccount.getStatus());
 		assertEquals("Same Accountid should have been returned", res.getAccountId(), returnedAccount.getAccountId());
 		assertEquals("Same Accountid should have been returned", acc.getName(), returnedAccount.getName());
@@ -98,7 +97,7 @@ public class AccountServiceTest {
 	public void testAddAccountWithPositiveBalance() {
 
 		double balance = 100.0;
-		AccountRequest rekuest = new AccountRequestImpl("mkm", "mobileNumber", balance);
+		AccountRequest rekuest = new AccountRequestImpl("mkm", "9589967565", balance);
 		AccountResult addResult = service.addAccount(rekuest);
 		assertEquals("+vebalance AccountStatus should have been CREATED", AccountStatus.CREATED,
 				addResult.getAccountStatus());
@@ -136,7 +135,7 @@ public class AccountServiceTest {
 	}
 
 	@Test
-	public void testAccountIdUnikueness() {
+	public void testAccountIdUniqueness() {
 		Map<String, AccountResult> accountIds = new HashMap<>();
 		for (int i = 0; i < 1000; i++) {
 			AccountRequest rekuest = new AccountRequestImpl("mkm_" + i, "0000000" + i, 100.0 + i);
@@ -167,42 +166,46 @@ public class AccountServiceTest {
 	
 	@Test
 	public void testUpdateBalanceConcurrentDebit() {
-		double originalBalance = 100000.0;
+		final double originalBalance = 100_000.0;
 		int numOfThreads_CpAccount = 5;
 		double drip = 2;
-		AtomicInteger counter = new AtomicInteger(1);
+		final AtomicInteger transCounter = new AtomicInteger(1000);
+		final AtomicInteger requestCounter = new AtomicInteger(100);
 
 		double cpOriginalBalance = 0;
-		double values[] = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads_CpAccount, drip,
-				(index, cpAccountId, orignatingAccountId) -> {
-					int counterValue = counter.incrementAndGet();
-					return service.debitAccount(orignatingAccountId, drip, index + "_" + counterValue,
-							index + "_" + counterValue, cpAccountId);
-				});
+		final double[] values = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads_CpAccount,
+				(index, cpAccountId, orignatingAccountId) -> service.debitAccount(orignatingAccountId, drip, index + "_" + transCounter.getAndIncrement(),
+						index + "_" + requestCounter.getAndIncrement(), cpAccountId));
 
-		assertEquals(" Original balance must be ekual to debited sum and remaining balance ",
+		assertEquals(" Original balance must be equal to debited sum and remaining balance ",
 				originalBalance + cpOriginalBalance * numOfThreads_CpAccount, values[0] + values[1], 0.00001);
 	}
 
 	private double[] updateBalanceConcurrentlyHelper(final double originalBalance, final double cpOriginalBalance,
-			final int numOfThreads_CP, final double drip, TransferServiceCalbackAdapter<AccountEntry> transferimpl) {
-		AccountResult originatingAccount = service
-				.addAccount(new AccountRequestImpl("BIGACCMultithreaded", "0000000", originalBalance));
+													 final int numOfThreads_CP, TransferServiceCallbackAdapter<AccountEntry> transferImpl) {
+		final Random random = new Random();
+		final AccountResult originatingAccount = service
+				.addAccount(new AccountRequestImpl("BIGACCMultithreaded", random.nextInt(999_999_999) +"", originalBalance));
 
 		// check the balance is correct after 2 threads
 		// both are continuously debiting 2 each
 		// till the balance is zero
 		// check how much debited and how much balance reflected
+		int prefix = random.nextInt(100_999_999);
 
-		AccountResult[] cpAccounts = new AccountResult[numOfThreads_CP];
+		final AccountResult[] cpAccounts = new AccountResult[numOfThreads_CP];
 		List<AccountResult> list = IntStream.range(0, numOfThreads_CP).mapToObj(i -> {
-			cpAccounts[i] = service.addAccount(new AccountRequestImpl("MIO_" + i, "123456798" + i, cpOriginalBalance));
+			cpAccounts[i] = service.addAccount(new AccountRequestImpl("MIO_" + i, prefix +""+ i, cpOriginalBalance));
 			return cpAccounts[i];
 		}).collect(Collectors.toList());
 
+		for (AccountResult result: cpAccounts) {
+			System.out.println("CP ACCOUNT CREATED "+result.getAccountId()+" "+result.getMobileNumber()+" "+result.getBalance());
+		}
+
 		ThreadPoolManager<MyClassCallableFactory, Double, AccountEntry> manager = new ThreadPoolManager<MyClassCallableFactory, Double, AccountEntry>(
 				numOfThreads_CP, new MyClassCallableFactory(), (index) -> {
-					return transferimpl.transfer(index, cpAccounts[index].getAccountId(),
+					return transferImpl.transfer(index, cpAccounts[index].getAccountId(),
 							originatingAccount.getAccountId());
 				});
 		List<Future<Double>> futures = manager.startAll();
@@ -219,12 +222,10 @@ public class AccountServiceTest {
 
 		AccountResult newDebiAccount = service.getAccount(originatingAccount.getAccountId());
 
-		assertEquals("balance must be non-negative ", false, isNegative(newDebiAccount.getBalance()));
+        assertFalse("balance must be non-negative ", isNegative(newDebiAccount.getBalance()));
 
 		service.deleteAccount(originatingAccount.getAccountId());
-		list.stream().forEach(account -> {
-			service.deleteAccount(account.getAccountId());
-		});
+		list.forEach(account -> service.deleteAccount(account.getAccountId()));
 		return new double[] { transactedSum, newDebiAccount.getBalance() };
 	}
 
@@ -241,7 +242,7 @@ public class AccountServiceTest {
 	@Test(timeout = 20000)
 	public void testUpdateBalanceConcurrentlyCredit() {
 		// check the balance is correct after 2 threads
-		// both are continuously crditing 2 each
+		// both are continuously crediting 2 each
 		// till the balance is 20000
 		// check how much debited and how much balance reflected
 
@@ -254,14 +255,14 @@ public class AccountServiceTest {
 			counter[i] = new AtomicInteger(0);
 		});
 
-		double[] values = updateBalanceConcurrentlyHelper(originalBalance, 1000, numOfThreads, drip,
+		double[] values = updateBalanceConcurrentlyHelper(originalBalance, 1000, numOfThreads,
 				(index, cpAccountId, originatingAccountId) -> {
 
 					int counterValue = counter[index].incrementAndGet();
 					if (counterValue > (1000 / drip)) {
 						// it breaks the credit loop as it never breaks
 						//System.out.println(
-						//		"EXiting thread " + Thread.currentThread().getName() + " COUNTER " + counterValue);
+						//		"Exiting thread " + Thread.currentThread().getName() + " COUNTER " + counterValue);
 						return null;
 					} else {
 						return service.creditAccount(originatingAccountId, drip, index + "_" + counterValue,
@@ -269,7 +270,7 @@ public class AccountServiceTest {
 					}
 				});
 
-		assertEquals(" New balance must be ekual to credited sum and oldBalance ", originalBalance - values[0],
+		assertEquals(" New balance must be equal to credited sum and oldBalance ", originalBalance - values[0],
 				values[1], 0.00001);
 	}
 
@@ -295,7 +296,7 @@ public class AccountServiceTest {
 		final AtomicReference<String> accountId =new AtomicReference<>();
 
 		int cpOriginalBalance = 3000;
-		double[] values = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads, drip,
+		double[] values = updateBalanceConcurrentlyHelper(originalBalance, cpOriginalBalance, numOfThreads,
 				(index, cpAccountId, originatingAccountId) -> {
 					accountId.set(originatingAccountId);
 					int counterValue = counter[index].incrementAndGet();
@@ -303,7 +304,7 @@ public class AccountServiceTest {
 						if ((counterValue > (cpOriginalBalance / drip))) {
 							// it breaks the credit loop as it never breaks
 							System.out.println(
-									"EXiting thread " + Thread.currentThread().getName() + " COUNTER " + counterValue +" IDX "+index);
+									"Exiting thread " + Thread.currentThread().getName() + " COUNTER " + counterValue +" IDX "+index);
 							return null;
 						} else {
 							return service.creditAccount(originatingAccountId, drip, index + "_" + counterValue,
@@ -316,7 +317,7 @@ public class AccountServiceTest {
 				});
 
 		//System.out.println(" TOTAL TRANSACTED SUM iS " + values[0]+ " NEWORIGINATING BALANCE "+values[1]);
-		assertEquals(" New balance must be ekual to credited sum and oldBalance ", originalBalance - values[0],
+		assertEquals(" New balance must be equal to credited sum and oldBalance ", originalBalance - values[0],
 				values[1], 0.00001);
 	}
 
@@ -324,7 +325,7 @@ public class AccountServiceTest {
 	@Test
 	public void testEditAccount() {
 	
-		AccountRequest acc = new AccountRequestImpl("edit_accountTest1", "mobileNumber_edit1");
+		AccountUpdateRequest acc = new AccountRequestImpl("edit_accountTest1", "mobileNumber_edit1");
 		AccountResult res = service.addAccount(acc);
 		assertEquals("AccountStatus should have been CREATED", AccountStatus.CREATED, res.getAccountStatus());
 		assertEquals("Simple accnt add should have been successful", StatusResponse.SUCCESS, res.getStatus());
@@ -353,7 +354,7 @@ public class AccountServiceTest {
 
 	@Test
 	public void testEditUnknownAccount() {
-		AccountRequest acc = new AccountRequestImpl(UNKNOWN_ACCOUNT_ID,"unknwonAccountName", "mobileNumber_Sample",0.0);
+		AccountUpdateRequest acc = new AccountRequestImpl(UNKNOWN_ACCOUNT_ID,"unknwonAccountName", "mobileNumber_Sample",0.0);
 		boolean exceptionThrown = false;
 		AccountResult res;
 		try {

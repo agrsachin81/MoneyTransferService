@@ -14,7 +14,7 @@ import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
 import home.test.api.example.moneytransfer.spi.enums.TransactionStatus;
 import home.test.api.example.moneytransfer.spi.enums.TransactionType;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
-import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.TransactionRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
 import home.test.api.example.moneytransfer.util.TransactionBuilder;
 
@@ -47,7 +47,7 @@ public class InMemoryTransactionService implements TransactionService {
 	}
 
 	@Override
-	public TransactionResult transfer(TransactionRekuest transaction, String originatingAccntId) {
+	public TransactionResult transfer(TransactionRequest transaction, String originatingAccntId) {
 		TransactionBuilder transactionResultBuilder = TransactionBuilder.createBuilder(transaction);
 
 		//TODO: add logging
@@ -100,8 +100,9 @@ public class InMemoryTransactionService implements TransactionService {
 		if (debitedAccountId != null) {
 			try {
 				debitEntry = this.service.debitAccount(debitedAccountId, transaction.getAmount(),
-						transactionResultBuilder.getTransactionReferenceId(), transaction.getTransactionRekuestId(), creditedAccountId);
+						transactionResultBuilder.getTransactionReferenceId(), transaction.getTransactionRequestId(), creditedAccountId);
 			} catch (AccountException e) {
+				e.printStackTrace();
 				transactions.put(transactionResultBuilder.getTransactionReferenceId(), transactionResultBuilder.createTransaction(debitedAccountId,
 						creditedAccountId, isCash, TransactionStatus.DEBIT_FAILED));
 				return transactionResultBuilder.createTransactionResult(StatusResponse.ERROR, TransactionStatus.DEBIT_FAILED,
@@ -112,7 +113,7 @@ public class InMemoryTransactionService implements TransactionService {
 		if (creditedAccountId != null) {
 			try {
 				this.service.creditAccount(creditedAccountId, transaction.getAmount(),
-						transactionResultBuilder.getTransactionReferenceId(), transaction.getTransactionRekuestId(), debitedAccountId);
+						transactionResultBuilder.getTransactionReferenceId(), transaction.getTransactionRequestId(), debitedAccountId);
 			} catch (AccountException e) {
 
 				if (updateCpAccount) {
@@ -161,7 +162,7 @@ public class InMemoryTransactionService implements TransactionService {
 				originatingAccntId, false, false);
 	}
 
-	private TransactionResult revertTransaction(TransactionRekuest transaction, String originatingAccntId,
+	private TransactionResult revertTransaction(TransactionRequest transaction, String originatingAccntId,
 			TransactionBuilder transactionResultBuilder, String debitedAccountId, String creditedAccountId,
 			AccountEntry debitEntry) throws AccountException {
 		AccountEntry revertAccountEntry = this.service.creditAccount(debitedAccountId,

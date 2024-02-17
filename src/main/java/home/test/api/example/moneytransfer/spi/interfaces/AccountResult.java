@@ -10,9 +10,9 @@ public interface AccountResult{
 	String getName();
 	String getMobileNumber();
 	
-	
+	String getRequestId();
 	/**
-	 * overall status of the rekuest/operation
+	 * overall status of the request/operation
 	 * @return
 	 */
 	StatusResponse getStatus();

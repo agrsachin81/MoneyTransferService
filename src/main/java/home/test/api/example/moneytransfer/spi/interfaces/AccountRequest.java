@@ -5,7 +5,7 @@ public interface AccountRequest {
 
 	public String getName();
 
-	String getAccountId();
+	String getRequestId();
 
 	double getBalance();
 }

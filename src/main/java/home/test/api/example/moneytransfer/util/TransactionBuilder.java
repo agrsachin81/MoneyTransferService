@@ -9,22 +9,18 @@ import home.test.api.example.moneytransfer.entities.AccountEntry;
 import home.test.api.example.moneytransfer.entities.Transaction;
 import home.test.api.example.moneytransfer.spi.enums.StatusResponse;
 import home.test.api.example.moneytransfer.spi.enums.TransactionStatus;
-import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.TransactionRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
 
 public final class TransactionBuilder {
 
 	private static final String MESSAGE_EMPTY = "";
-	private TransactionRekuest rekuest;
+	private TransactionRequest request;
 	private String transactionReferenceId;
 	private long timestamp;
 	private static final AtomicInteger idCounter = new AtomicInteger();
 
-	private static ThreadLocal<TransactionBuilder> transactBuilder = new ThreadLocal<TransactionBuilder>() {
-		public TransactionBuilder initialValue() {
-			return new TransactionBuilder();
-		}
-	};
+	private static final ThreadLocal<TransactionBuilder> transactBuilder = ThreadLocal.withInitial(TransactionBuilder::new);
 
 	private TransactionBuilder() {
 		reset();
@@ -42,12 +38,12 @@ public final class TransactionBuilder {
 		return transactBuilder.get().reset();
 	}
 
-	public TransactionBuilder withTransactionRekuest(TransactionRekuest rekuest) {
-		this.rekuest = rekuest;
+	public TransactionBuilder withTransactionRekuest(TransactionRequest request) {
+		this.request = request;
 		return this;
 	}
 
-	public static TransactionBuilder createBuilder(TransactionRekuest rekuest) {
+	public static TransactionBuilder createBuilder(TransactionRequest rekuest) {
 		TransactionBuilder builder = createBuilder();
 		builder.withTransactionRekuest(rekuest);
 		return builder;
@@ -55,15 +51,15 @@ public final class TransactionBuilder {
 
 	public TransactionResult createTransactionResult(StatusResponse statusResponse, TransactionStatus transactionStatus,
 			String message, String accountId, boolean isDebit, boolean isCash) {
-		return new TransactionResultImpl(this.rekuest.getTransactionRekuestId(), transactionStatus,
-				transactionReferenceId, accountId, this.rekuest.getAmount(), statusResponse, rekuest.getCpAccountId(),
-				isDebit, isCash, rekuest.getCashReferenceId(), timestamp, message);
+		return new TransactionResultImpl(this.request.getTransactionRequestId(), transactionStatus,
+				transactionReferenceId, accountId, this.request.getAmount(), statusResponse, request.getCpAccountId(),
+				isDebit, isCash, request.getCashReferenceId(), timestamp, message);
 	}
 
 	public Transaction createTransaction(String debitedAccountId, String creditedAccountId, boolean isCashTransaction,
 			TransactionStatus transactionStatus) {
-		return new Transaction(transactionReferenceId, debitedAccountId, creditedAccountId, this.rekuest.getAmount(),
-				isCashTransaction, rekuest.getCashReferenceId(), rekuest.getTransactionRekuestId(), transactionStatus);
+		return new Transaction(transactionReferenceId, debitedAccountId, creditedAccountId, this.request.getAmount(),
+				isCashTransaction, request.getCashReferenceId(), request.getTransactionRequestId(), transactionStatus);
 	}
 
 	public TransactionResult createAbortedTransactionResult(StatusResponse status, String accntId,
@@ -88,7 +84,7 @@ public final class TransactionBuilder {
 	}
 
 	private TransactionBuilder reset() {
-		this.rekuest = null;
+		this.request = null;
 		this.timestamp = System.currentTimeMillis();
 		this.transactionReferenceId = idCounter.incrementAndGet() + "_TXN";
 		return this;
@@ -99,7 +95,7 @@ public final class TransactionBuilder {
 		Optional<String> cpAccountId = isDebitAccnt ? transaction.getCreditAccountId():
 		transaction.getCreditAccountId() ;
 		
-		return new TransactionResultImpl(transaction.getRekuestId(), transaction.getTransactionStatus(),
+		return new TransactionResultImpl(transaction.getRequestId(), transaction.getTransactionStatus(),
 				transaction.getTransactionReferenceId(),accountId , transaction.getAmount(), status, 
 				cpAccountId, isDebitAccnt, false, transaction.getKioskId(), transaction.getTimestamp(), MESSAGE_EMPTY);
 	}

@@ -11,10 +11,10 @@ import java.util.stream.IntStream;
 
 public class ThreadPoolManager<V extends CallableObjectFactory<T, P>, T, P> {
 
-	private List<Callable<T>> list;
+	private final List<Callable<T>> list;
 
-	private ExecutorService service;
-	private CountDownLatch latch;
+	private final ExecutorService service;
+	private final CountDownLatch latch;
 
 	public ThreadPoolManager(int numOfThreads, V task, TransferServiceCallback<P> transferCall) {
 		service = Executors.newFixedThreadPool(numOfThreads);

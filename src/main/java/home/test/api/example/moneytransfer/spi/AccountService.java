@@ -5,6 +5,7 @@ import java.util.Collection;
 import home.test.api.example.moneytransfer.spi.exceptions.AccountException;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountUpdateRequest;
 
 /**
  * to help create and manage accounts, i.e. CRUD operations for transactions use TransactionService
@@ -14,6 +15,13 @@ import home.test.api.example.moneytransfer.spi.interfaces.AccountResult;
  *
  */
 public interface AccountService {
+
+
+	/**
+	 * returns all known accounts
+	 * @return collection of AccountResult
+	 */
+	Collection<AccountResult> getAccounts();
 
 	/**
 	 * To add Account 
@@ -26,7 +34,7 @@ public interface AccountService {
 	 * returns all known accounts
 	 * @return collection of AccounResult
 	 */
-	Collection<AccountResult> getAccounts();
+	Collection<AccountResult> getIdAccountsMap();
 
 	/**
 	 * to fetch current status of the account
@@ -41,7 +49,7 @@ public interface AccountService {
 	 * @return current status of the account
 	 * @throws AccountException Account not found, already deleted if edit is not allowed
 	 */
-	AccountResult editAccount(AccountRequest account) throws AccountException;
+	AccountResult editAccount(AccountUpdateRequest account) throws AccountException;
 
 	/**
 	 * To delete the accounts, when account is deleted only status is changed, transaction history remains intact 

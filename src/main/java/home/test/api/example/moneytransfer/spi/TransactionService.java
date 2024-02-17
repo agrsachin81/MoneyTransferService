@@ -2,7 +2,7 @@ package home.test.api.example.moneytransfer.spi;
 
 import java.util.Collection;
 
-import home.test.api.example.moneytransfer.spi.interfaces.TransactionRekuest;
+import home.test.api.example.moneytransfer.spi.interfaces.TransactionRequest;
 import home.test.api.example.moneytransfer.spi.interfaces.TransactionResult;
 
 /**
@@ -18,7 +18,7 @@ public interface TransactionService {
 	 * @param originatingAccntId to which debit or credit shall be done
 	 * @return TransactionResult
 	 */
-	TransactionResult transfer(TransactionRekuest transaction, String originatingAccntId);	
+	TransactionResult transfer(TransactionRequest transaction, String originatingAccntId);	
 	
 	/**
 	 * to fetch last n Transaction for the given account Id
@@ -31,7 +31,7 @@ public interface TransactionService {
 	/**
 	 * to fetch the status of the transaction
 	 * @param accountId
-	 * @param transactionid transaction reference id returned by {@link #transfer(TransactionRekuest, String)} 
+	 * @param transactionid transaction reference id returned by {@link #transfer(TransactionRequest, String)} 
 	 * @return TransactionResult
 	 */
 	TransactionResult getTransaction(String accountId, String transactionid);

@@ -1,13 +1,19 @@
 package home.test.api.example.moneytransfer.spi.utils;
 
-import home.test.api.example.moneytransfer.spi.interfaces.AccountRequest;
+import home.test.api.example.moneytransfer.spi.interfaces.AccountUpdateRequest;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public final class AccountRequestImpl implements AccountRequest{
+public final class AccountRequestImpl implements AccountUpdateRequest {
 
 	private final String accountId;
 	private final String name;
 	private final String mobileNumber;
 	private final double balance;
+
+	private final String requestId;
+
+	private static final AtomicInteger requestIdGenerator = new AtomicInteger(10);
+
 	public AccountRequestImpl(String name, String mobileNumber) {
 		this(null, name, mobileNumber, 0.0);
 	}
@@ -21,6 +27,7 @@ public final class AccountRequestImpl implements AccountRequest{
 		this.mobileNumber= mobileNumber;
 		this.name = name;
 		this.balance = balance;
+		requestId = System.currentTimeMillis() + " _" +requestIdGenerator.getAndIncrement();
 	}
 
 	@Override
@@ -31,6 +38,11 @@ public final class AccountRequestImpl implements AccountRequest{
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getRequestId() {
+		return requestId;
 	}
 
 	@Override

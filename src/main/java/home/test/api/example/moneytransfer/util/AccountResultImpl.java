@@ -14,13 +14,14 @@ public class AccountResultImpl implements AccountResult {
 	private final String name;
 	private final String message;
 
+	private final String requestId;
 	
-	public AccountResultImpl(String accountId, StatusResponse response, String message) {
-		this(accountId, 0.0, AccountStatus.UNKNOWN, null, null, response, message);
+	public AccountResultImpl(String accountId, StatusResponse response, String message, String requestId) {
+		this(accountId, 0.0, AccountStatus.UNKNOWN, null, null, response, message, requestId);
 	}
 	
 	public AccountResultImpl(String accountId, double balance, AccountStatus status, String name, String mobileNumber,
-			StatusResponse response, String message) {
+			StatusResponse response, String message, String requestId) {
 		this.status = response;
 		this.balance = balance;
 		this.accountStatus = status;
@@ -28,6 +29,7 @@ public class AccountResultImpl implements AccountResult {
 		this.mobileNumber = mobileNumber;
 		this.accountId = accountId;
 		this.message = message;
+		this.requestId= requestId;
 	}
 
 	@Override
@@ -58,6 +60,11 @@ public class AccountResultImpl implements AccountResult {
 	@Override
 	public String getMobileNumber() {
 		return mobileNumber;
+	}
+
+	@Override
+	public String getRequestId() {
+		return requestId;
 	}
 
 	@Override

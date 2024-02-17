@@ -6,20 +6,20 @@ import java.util.Optional;
 import home.test.api.example.moneytransfer.spi.enums.TransactionStatus;
 
 public class Transaction {
-	private boolean cash;
+	private final boolean cash;
 
 	private final Optional<String> creditedAccountId;
 	private final Optional<String> debitedAccountId;
 	private final double amount;
 	private final Optional<String> kioskId;
 	private final String transactionReferenceId;
-	private final String rekuestId;
+	private final String requestId;
 	private final TransactionStatus transactionStatus;
 	
 	private final Long timestamp;
 
 	public Transaction(String transactionReferenceId, String debitedAccountId, String creditedAccountId, double amount,
-			boolean isCashTransaction, Optional<String> kioskId, String rekuestId, TransactionStatus transactionStatus) {
+			boolean isCashTransaction, Optional<String> kioskId, String requestId, TransactionStatus transactionStatus) {
 
 		this.transactionReferenceId = transactionReferenceId;
 		this.timestamp = System.currentTimeMillis();
@@ -28,7 +28,7 @@ public class Transaction {
 		this.amount = amount;
 		this.cash = isCashTransaction;
 		this.kioskId = kioskId.isPresent() ? Optional.of(kioskId.get()) : Optional.empty();
-		this.rekuestId = rekuestId;
+		this.requestId = requestId;
 		this.transactionStatus = transactionStatus;
 	}
 
@@ -64,7 +64,7 @@ public class Transaction {
 		return debitedAccountId;
 	}
 
-	public String getRekuestId() {
-		return rekuestId;
+	public String getRequestId() {
+		return requestId;
 	}
 }
